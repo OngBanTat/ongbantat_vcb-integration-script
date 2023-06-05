@@ -1,0 +1,27 @@
+{
+  "name": "vcb-integration-script",
+  "version": "1.0.0",
+  "description": "vcb-integration-script",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "testmail": "node request.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/khangpqvn/vcb-integration-script.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/khangpqvn/vcb-integration-script/issues"
+  },
+  "homepage": "https://github.com/khangpqvn/vcb-integration-script#readme",
+  "dependencies": {
+    "moment": "^2.29.4",
+    "nodemailer": "^6.9.3",
+    "qs": "^6.11.2",
+    "request": "^2.88.2"
+  }
+}

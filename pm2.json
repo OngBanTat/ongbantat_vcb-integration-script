@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "VCB_CRAWLING",
+      "script": "./index.js",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "watch": false,
+      "env": {
+
+      }
+    }
+  ]
+}
