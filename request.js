@@ -1,15 +1,20 @@
 const request = require('request');
 const qs = require('qs');
-
 let services = {};
+const https = require('https');
 
+const agentOptions = {
+    rejectUnauthorized: false
+};
+
+const agent = new https.Agent(agentOptions);
 services.callRest = (url, data = {}, query = {}, headers = {}, method = 'POST', timeout = 60000, option = {}) => {
     let options = {
         url,
         method: (method + '').toUpperCase(),
         body: data,
-        agent: false,
         pool: {maxSockets: Infinity},
+        agent,
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
             // "User-Agent": "request/2.88.0",
