@@ -1,4 +1,5 @@
 let expo = {}
+const moment = require('moment');
 
 expo.common = {
     baseUrl: 'https://chatgpt.ongbantat.store',
@@ -7,6 +8,7 @@ expo.common = {
     smtpPass: '2904jga32ue4ahmv23gv1e1fzoz849304284302'.replace(/[0-9]/g, ''),
     notifyReceiverEmail: 'khangpq.vn@gmail.com'
 }
+
 expo.callback = {
     url: '',
     headers: {},
@@ -59,7 +61,7 @@ expo.callback = {
 expo.vcb = {
     "sessionId": "",
     "accountNo": "",
-    "accountType": "D",
+    "accountType": "",
     "cif": "",
     "user": "",
     "mobileId": "",
