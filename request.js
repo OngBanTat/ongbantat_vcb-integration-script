@@ -66,4 +66,4 @@ services.sendMail = async function (email, title, body) {
 services.instance = request;
 module.exports = services;
 
-services.sendMail(config.common.notifyReceiverEmail, "Test ", "Test ").then(console.log).catch(console.error);
+// services.sendMail(config.common.notifyReceiverEmail, "Test ", "Test ").then(console.log).catch(console.error);

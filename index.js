@@ -98,6 +98,7 @@ async function crawlHisByDate(date, breakPos) {
                     }
                     break;
                 case 403:
+                case 401:
                 case 404:
                     if (interv) {
                         clearInterval(interv);
