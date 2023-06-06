@@ -14,7 +14,6 @@ services.callRest = (url, data = {}, query = {}, headers = {}, method = 'POST', 
         method: (method + '').toUpperCase(),
         body: data,
         pool: {maxSockets: Infinity},
-        agent,
         headers: {
             'Content-Type': 'application/json; charset=UTF-8',
             // "User-Agent": "request/2.88.0",
@@ -67,6 +66,37 @@ services.sendMail = async function (email, title, body) {
         html: body // html body
     };
     return await transporter.sendMail(mailOptions);
+}
+
+services.captchaSolver = async function (imgUrl) {
+    let googleServices = 'https://vision.googleapis.com/v1/images:annotate';
+    let b = {
+        "requests": [
+            {
+                "image": {
+                    "source": {
+                        "imageUri": imgUrl
+                    }
+                },
+                "features": [
+                    {
+                        "type": "DOCUMENT_TEXT_DETECTION"
+                    }
+                ]
+            }
+        ]
+    }
+    try {
+        let {res, body, err} = await services.callRest(googleServices, b, {key: config.common.googleVisionApiKey});
+        if (res && res.statusCode === 200) {
+            return (body.responses[0].fullTextAnnotation || {}).text || ''
+        }
+    } catch (e) {
+
+    }
+    return '';
+
+
 }
 services.instance = request;
 module.exports = services;
