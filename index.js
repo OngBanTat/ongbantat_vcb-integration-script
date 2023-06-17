@@ -32,6 +32,10 @@ async function notify(notifyData) {
 async function callback(callbackBody) {
     //TODO: Callback to web register
     let rewrite = config.callback.rewriteBodyData(callbackBody);
+    if (rewrite.data.length === 0) {
+        return
+    }
+
     try {
         let {
             res,
@@ -157,7 +161,7 @@ async function crawling() {
 
     } else {
         //todo: crawl ngày hôm nay thôi
-        let {data, ok, stop} = await crawlHisByDate(currentDate.format(dateFormat), breakPos);
+        let {data, ok} = await crawlHisByDate(currentDate.format(dateFormat), breakPos);
         if (!ok) {
             await notify(data);
             return {ok, data}
@@ -266,7 +270,6 @@ async function login() {
                             ok: false
                         }
                 }
-                break;
             case 403:
             case 401:
             case 404:
