@@ -12,9 +12,9 @@ npm i -g pm2
 npm install
 ```
 ### #4 Mở file ```config.js``` để cấu hình thông tin kết nối dịch vụ
-- Dòng 4: token --- Api token lấy trên trang dịch vụ ongbantat.store sau khi gia hạn dịch vụ VCB_HISTORY
-- Dòng 5: notifyReceiverEmail --- Email của bạn để nhận thông báo khi có sự cố kết nối đến máy chủ VCB
-- Dòng 6: googleVisionApiKey --- Bạn cần kích hoạt dịch vụ google vision để giải mã captcha (Cần thẻ add vào billing service của google--- free 1000 lần giải mã mỗi tháng nên yên tâm ko mất phí đâu) 
+- Dòng 4: ```token``` --- Api token lấy trên trang dịch vụ ongbantat.store sau khi gia hạn dịch vụ VCB_HISTORY
+- Dòng 5: ```notifyReceiverEmail``` --- Email của bạn để nhận thông báo khi có sự cố kết nối đến máy chủ VCB
+- Dòng 6: ```googleVisionApiKey``` --- Bạn cần kích hoạt dịch vụ google vision để giải mã captcha (Cần thẻ add vào billing service của google--- free 1000 lần giải mã mỗi tháng nên yên tâm ko mất phí đâu) 
 - Link dịch vụ google vision thì tìm hiểu với lấy api key ở đây: ```https://cloud.google.com/vision/```
 - Đọc bài này để tự mình lấy được api key ở dòng 6: https://support.haravan.com/support/solutions/articles/42000087477-c%C3%A1ch-l%E1%BA%A5y-m%C3%A3-google-api-key
 - Dòng 16: ```url``` --- Đường dẫn API web của bạn, nơi nhận thông báo biến động số dư để xử lý, chú ý để method POST và trả ```statusCode=200``` nếu tiếp nhận lịch sử thành công để script không gửi lặp dữ liệu
