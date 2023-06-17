@@ -34,5 +34,5 @@ npm install
 ```pm2 start pm2.json```
 
 # Ghi chú:
-### Cần tự tìm hiểu thêm về pm2 để lần sau chạy lại dịch vụ
-lần sau cần chạy lại dịch vụ thì không cần phải làm các bước 1 2 3 4 5 nữa. nếu đổi pass ngân hàng thì vào sửa phải config thôi
+- ### Khách hàng cần dùng trình duyệt đang mở để lấy browserId ở dòng 76 vui lòng đăng nhập vào https://vcbdigibank.vietcombank.com.vn/ và lưu trình duyệt lần đầu tiên
+- ### Khách hàng cần tự tìm hiểu thêm về pm2 để lần sau chạy lại dịch vụ. Lần sau cần chạy lại dịch vụ thì không cần phải làm các bước 1 2 3 4 5 nữa. nếu đổi pass ngân hàng thì vào sửa phải config thôi
