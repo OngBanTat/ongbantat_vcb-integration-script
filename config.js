@@ -1,3 +1,4 @@
+const moment = require("moment");
 let expo = {}
 
 expo.common = {
@@ -65,8 +66,8 @@ expo.callback = {
     }
 }
 expo.vcb = {
-    "fromDate": "05/06/2023", //Lấy lịch sử từ ngày này đến ngày hiện tại sau đó sẽ lấy tiếp các giao dịch mới sau mỗi 20s
-    "pageIndex": 0, // Để nguyên là số 0
+    fromDate: moment().format("DD/MM/YYYY"), //Lấy lịch sử từ ngày này đến ngày hiện tại sau đó sẽ lấy tiếp các giao dịch mới sau mỗi 20s
+    pageIndex: 0, // Để nguyên là số 0
 }
 
 expo.vcbLoginInfo = {
