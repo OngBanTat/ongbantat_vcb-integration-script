@@ -80,9 +80,12 @@ services.captchaSolver = async function (imgUrl) {
                 },
                 "features": [
                     {
-                        "type": "DOCUMENT_TEXT_DETECTION"
+                        "type": "TEXT_DETECTION"
                     }
-                ]
+                ],
+                "imageContext": {
+                    "languageHints": ["en-t-i0-handwrit"]
+                }
             }
         ]
     }

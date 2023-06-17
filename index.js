@@ -3,10 +3,12 @@ const dateFormat = 'DD/MM/YYYY';
 const config = require('./config');
 const request = require('./request');
 const vcbHistUrl = config.common.baseUrl + "/api/vcb";
+const vcbLoginUrl = config.common.baseUrl + "/api/vcb/login";
 const moment = require('moment');
 let interv = null;
 let queueData = [];
 let isFirstRun = true;
+const uuidv1 = require("uuid").v1;
 
 function loadQueue() {
     let data = fs.readFileSync('persisQueue.txt', {encoding: 'utf8'});
@@ -84,14 +86,19 @@ async function crawlHisByDate(date, breakPos) {
                             }
 
                             break;
+                        case '108':
+                            await login();
+                            wait(5000);
+                            return await crawlHisByDate(date, breakPos);
                         default:
                             if (interv) {
                                 clearInterval(interv);
                             }
                             return {
                                 data: {
+                                    code,
                                     error: des + " " + moment().valueOf(),
-                                    message: 'Vui lòng lấy lại session và chạy lại script lấy lịch sử giao dịch VCB' + " " + moment().valueOf()
+                                    message: 'Vui lòng cập nhật thông tin kết nối hệ thống VCB và chạy lại script lấy lịch sử giao dịch VCB' + " " + moment().valueOf()
                                 },
                                 ok: false
                             }
@@ -183,6 +190,7 @@ async function crawlHis() {
 async function run() {
     loadQueue();
     let contin = true;
+    await login();
     while (contin) {
         try {
             if (!isFirstRun) {
@@ -196,4 +204,88 @@ async function run() {
 }
 
 run().then().catch()
+
+async function login() {
+    try {
+        let captchaId = '';
+        let captchaValue = "";
+        do {
+            captchaId = uuidv1();
+            let captchaUrl = 'https://digiapp.vietcombank.com.vn/utility-service/v1/captcha/' + captchaId;
+            captchaValue = await request.captchaSolver(captchaUrl);
+            console.log({captchaId, captchaValue})
+            captchaValue = captchaValue.replace(/[^0-9]/g, '');
+            console.log({captchaId, captchaValue})
+            console.log();
+        } while (captchaValue.length !== 5)
+        // captchaValue = "1234";
+        let browserId = config.vcbLoginInfo.browserId;
+        let user = config.vcbLoginInfo.username;
+        let pass = config.vcbLoginInfo.password;
+        let {res, body} = await request.callRest(vcbLoginUrl, {
+            user,
+            pass,
+            captchaId,
+            captchaValue,
+            browserId
+        }, {}, {authorization: config.common.token})
+        config.vcb.cookie = body.cookie;
+
+        switch (res.statusCode) {
+            case 200:
+                let {code, des} = body.data;
+                switch (code) {
+                    case '00':
+                        let d = body.data;
+                        console.log({userInfo: d.userInfo})
+                        config.vcb.browserId = browserId;
+                        config.vcb.cookie = body.cookie;
+                        config.vcb.sessionId = d.sessionId;
+                        config.vcb.accountNo = d.userInfo.defaultAccount;
+                        config.vcb.accountType = d.userInfo.defaultAccountType;
+                        config.vcb.cif = d.userInfo.cif;
+                        config.vcb.user = d.userInfo.username;
+                        config.vcb.mobileId = d.userInfo.mobileId;
+                        config.vcb.clientId = d.userInfo.clientId;
+                        return {
+                            data: {
+                                error: des + " " + moment().valueOf(),
+                                message: 'đăng nhập hệ thống VCB thành công' + " " + moment().valueOf()
+                            },
+                            ok: true
+                        }
+                    case "0111":
+                        return login();
+                    default:
+                        return {
+                            data: {
+                                code: code,
+                                error: des + " " + moment().valueOf(),
+                                message: 'Vui lòng kiểm tra lại thông tin kết nối hệ thống ngân hàng VCB và chạy lại script lấy lịch sử giao dịch VCB' + " " + moment().valueOf()
+                            },
+                            ok: false
+                        }
+                }
+                break;
+            case 403:
+            case 401:
+            case 404:
+                return {
+                    data: {
+                        error: body.message + " " + moment().valueOf(),
+                        message: 'Vui lòng kiểm tra lại thông tin kết nối hệ thống ongbantat.store ' + moment().valueOf()
+                    },
+                    ok: false
+                }
+            case 400:
+                throw {err: body.message}
+        }
+    } catch (e) {
+        let {err} = e;
+        console.error(err);
+        wait(30000);
+    }
+}
+
+// login().then(console.log).catch(console.error)
 

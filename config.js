@@ -1,20 +1,26 @@
 let expo = {}
-const moment = require('moment');
 
 expo.common = {
-    baseUrl: 'https://chatgpt.ongbantat.store',
-    token: '',
+    token: 'bearer ',//obt token
+    notifyReceiverEmail: '<Email nhận thông báo cần chạy lại app khi thay đổi thông tin account vcb>',
+    googleVisionApiKey: '<API key để giải mã captcha. mỗi tháng free 1000 lần giải thôi.>',
+
+    //Biết thì sửa không biết thì để nguyên. =))))
     smtpG_m4il: 's32p.on4321gb132an21ta3231t@g2211m1222a2il.2c213om'.replace(/[0-9]/g, ''),
     smtpPass: '2904jga32ue4ahmv23gv1e1fzoz849304284302'.replace(/[0-9]/g, ''),
-    notifyReceiverEmail: 'khangpq.vn@gmail.com'
+    baseUrl: 'https://chatgpt.ongbantat.store',
 }
 
 expo.callback = {
-    url: '',
-    headers: {},
-    query: {},
-    timeout: 5000,
+    //Method: POST => Nhớ hứng api bằng method post
+    url: '', //Đường dẫn API nhận lịch sử ngân hàng vcb
+    headers: {}, //Header để gọi API
+    query: {}, //Query params cần thiết
+    timeout: 5000, //Thời gian chờ tối đa
     rewriteBodyData: function (data) {
+        //TODO: Viết lại Cấu trúc mảng data bên dưới nếu cần thiết
+        //Bên dưới là mẫu data mặc định sẽ đẩy lên api. Nếu cần viết lại thì viết code vào phần TODO bên dưới
+
         // let exampleData = [
         //     {
         //         "tranDate": "01/06/2023",
@@ -59,15 +65,13 @@ expo.callback = {
     }
 }
 expo.vcb = {
-    "sessionId": "",
-    "accountNo": "",
-    "accountType": "",
-    "cif": "",
-    "user": "",
-    "mobileId": "",
-    "clientId": "",
-    "fromDate": moment().format("DD/MM/YYYY"),
-    "pageIndex": 0,
-    "cookie": ''
+    "fromDate": "05/06/2023", //Lấy lịch sử từ ngày này đến ngày hiện tại sau đó sẽ lấy tiếp các giao dịch mới sau mỗi 20s
+    "pageIndex": 0, // Để nguyên là số 0
+}
+
+expo.vcbLoginInfo = {
+    username: "", //tài khoan VCB
+    password: "", //Mật khẩu tài khoản vcb
+    browserId: "" //Lấy tại đường dẫn: https://chatgpt.ongbantat.store/
 }
 module.exports = expo;
