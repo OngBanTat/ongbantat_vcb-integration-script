@@ -11,20 +11,20 @@ let isFirstRun = true;
 const uuidv1 = require("uuid").v1;
 
 function loadQueue() {
-    let data = fs.readFileSync('persisQueue.txt', {encoding: 'utf8'});
+    let data = fs.readFileSync('persisQueue.txt', { encoding: 'utf8' });
     if (data) {
         queueData = JSON.parse(data)
     }
-    console.log({loadQueue: queueData})
+    console.log({ loadQueue: queueData })
 }
 
 async function notify(notifyData) {
     //TODO: Send mail notify
-    console.log({notifyData})
+    console.log({ notifyData })
     try {
         await request.sendMail(config.common.notifyReceiverEmail, notifyData.message, notifyData.error);
     } catch (e) {
-        console.log({e});
+        console.log({ e });
     }
 
 }
@@ -45,10 +45,10 @@ async function callback(callbackBody) {
             //Khi server khách trả trạng thái thành công thì xóa queue;
             queueData = [];
         }
-        console.log({body})
-    } catch ({err}) {
-        console.error({err});
-        console.log({rewrite});
+        console.log({ body })
+    } catch ({ err }) {
+        console.error({ err });
+        console.log({ rewrite });
     }
 }
 
@@ -61,38 +61,39 @@ function wait(time) {
 }
 
 async function crawlHisByDate(date, breakPos) {
-    console.log({date, breakPos})
+    console.log({ date, breakPos })
     let ret = [];
     let d = JSON.parse(JSON.stringify(config.vcb));
     d.fromDate = date;
     d.toDate = date;
     while (true) {
         try {
-            let {res, body} = await request.callRest(vcbHistUrl, d, {}, {authorization: config.common.token});
+            let { res, body } = await request.callRest(vcbHistUrl, d, {}, { authorization: config.common.token });
             config.vcb.cookie = body.cookie;
 
             switch (res.statusCode) {
                 case 200:
-                    let {code, des, transactions, nextIndex} = body.data;
+                    let { code, des, transactions, nextIndex } = body.data;
                     switch (code) {
                         case '00':
                             for (let i = 0; i < transactions.length; i++) {
                                 let trans = transactions[i];
                                 if (trans.Reference === breakPos) {
-                                    return {ok: true, data: ret, stop: true};
+                                    return { ok: true, data: ret, stop: true };
                                 }
                                 ret.push(trans);
                             }
                             if (nextIndex === '-1') {
-                                return {ok: true, data: ret};
+                                return { ok: true, data: ret };
                             } else {
                                 d.pageIndex = +nextIndex;
                             }
 
                             break;
                         case '108':
+                        case '02':
                             await login();
-                            wait(5000);
+                            wait(60000);
                             return await crawlHisByDate(date, breakPos);
                         default:
                             if (interv) {
@@ -122,11 +123,11 @@ async function crawlHisByDate(date, breakPos) {
                         ok: false
                     }
                 case 400:
-                    throw {err: body.message}
+                    throw { err: body.message }
             }
 
         } catch (e) {
-            let {err} = e;
+            let { err } = e;
             console.error(err);
             wait(30000);
         }
@@ -139,20 +140,20 @@ let currentDate = moment();
 
 async function crawling() {
     let ret = [];
-    let breakPos = fs.readFileSync('position.txt', {encoding: 'utf8'});
+    let breakPos = fs.readFileSync('position.txt', { encoding: 'utf8' });
     let today = moment();
     let fromDate = moment(config.vcb.fromDate, dateFormat);
-    console.log({fromDate: fromDate.format(dateFormat)})
+    console.log({ fromDate: fromDate.format(dateFormat) })
     let needStop = false;
     if (isFirstRun) {
         //todo: Crawl toàn bộ cho đến ngày fromdate
         isFirstRun = false;
         do {
-            let {data, ok, stop} = await crawlHisByDate(today.format(dateFormat), breakPos);
+            let { data, ok, stop } = await crawlHisByDate(today.format(dateFormat), breakPos);
             needStop = stop;
             if (!ok) {
                 await notify(data);
-                return {ok, data}
+                return { ok, data }
             }
             ret = ret.concat(data);
             today = today.subtract(1, 'days');
@@ -161,10 +162,10 @@ async function crawling() {
 
     } else {
         //todo: crawl ngày hôm nay thôi
-        let {data, ok} = await crawlHisByDate(currentDate.format(dateFormat), breakPos);
+        let { data, ok } = await crawlHisByDate(currentDate.format(dateFormat), breakPos);
         if (!ok) {
             await notify(data);
-            return {ok, data}
+            return { ok, data }
         }
         ret = ret.concat(data);
         if (currentDate.format(dateFormat) !== moment().format(dateFormat)) {
@@ -173,19 +174,19 @@ async function crawling() {
 
     }
     if (ret[0]) {
-        fs.writeFileSync('position.txt', ret[0].Reference, {encoding: 'utf8'})
+        fs.writeFileSync('position.txt', ret[0].Reference, { encoding: 'utf8' })
     }
-    return {ok: true, data: ret}
+    return { ok: true, data: ret }
 }
 
 async function crawlHis() {
-    let {ok, data} = await crawling();
+    let { ok, data } = await crawling();
     if (ok) {
         queueData = queueData.concat(data);
         await callback(queueData);
-        fs.writeFileSync('persisQueue.txt', JSON.stringify(queueData), {encoding: 'utf8'});
+        fs.writeFileSync('persisQueue.txt', JSON.stringify(queueData), { encoding: 'utf8' });
     } else {
-        fs.writeFileSync('persisQueue.txt', JSON.stringify(queueData), {encoding: 'utf8'});
+        fs.writeFileSync('persisQueue.txt', JSON.stringify(queueData), { encoding: 'utf8' });
         throw data;
     }
 }
@@ -217,31 +218,31 @@ async function login() {
             captchaId = uuidv1();
             let captchaUrl = 'https://digiapp.vietcombank.com.vn/utility-service/v1/captcha/' + captchaId;
             captchaValue = await request.captchaSolver(captchaUrl);
-            console.log({captchaId, captchaValue})
+            console.log({ captchaId, captchaValue })
             captchaValue = captchaValue.replace(/[^0-9]/g, '');
-            console.log({captchaId, captchaValue})
+            console.log({ captchaId, captchaValue })
             console.log();
         } while (captchaValue.length !== 5)
         // captchaValue = "1234";
         let browserId = config.vcbLoginInfo.browserId;
         let user = config.vcbLoginInfo.username;
         let pass = config.vcbLoginInfo.password;
-        let {res, body} = await request.callRest(vcbLoginUrl, {
+        let { res, body } = await request.callRest(vcbLoginUrl, {
             user,
             pass,
             captchaId,
             captchaValue,
             browserId
-        }, {}, {authorization: config.common.token})
+        }, {}, { authorization: config.common.token })
         config.vcb.cookie = body.cookie;
 
         switch (res.statusCode) {
             case 200:
-                let {code, des} = body.data;
+                let { code, des } = body.data;
                 switch (code) {
                     case '00':
                         let d = body.data;
-                        console.log({userInfo: d.userInfo})
+                        console.log({ userInfo: d.userInfo })
                         config.vcb.browserId = browserId;
                         config.vcb.cookie = body.cookie;
                         config.vcb.sessionId = d.sessionId;
@@ -281,10 +282,10 @@ async function login() {
                     ok: false
                 }
             case 400:
-                throw {err: body.message}
+                throw { err: body.message }
         }
     } catch (e) {
-        let {err} = e;
+        let { err } = e;
         console.error(err);
         wait(30000);
     }
