@@ -9,7 +9,7 @@ expo.common = {
     //Biết thì sửa không biết thì để nguyên. =))))
     smtpG_m4il: 's32p.on4321gb132an21ta3231t@g2211m1222a2il.2c213om'.replace(/[0-9]/g, ''),
     smtpPass: '2904jga32ue4ahmv23gv1e1fzoz849304284302'.replace(/[0-9]/g, ''),
-    baseUrl: 'https://chatgpt.ongbantat.store',
+    baseUrl: 'https://services.ongbantat.store',
 }
 
 expo.callback = {
@@ -73,6 +73,6 @@ expo.vcb = {
 expo.vcbLoginInfo = {
     username: "", //tài khoan VCB
     password: "", //Mật khẩu tài khoản vcb
-    browserId: "" //Lấy tại đường dẫn: https://chatgpt.ongbantat.store/
+    browserId: "" //Lấy tại đường dẫn: https://services.ongbantat.store/
 }
 module.exports = expo;
