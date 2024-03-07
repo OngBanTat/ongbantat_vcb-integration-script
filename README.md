@@ -25,7 +25,7 @@ npm install
 - Dòng 68: ```fromDate``` --- Thời điểm bạn crawl dữ liệu bắt đầu từ ngày nào chú ý định dạng DD/MM/YYYY. Mặc định sẽ là ```hôm nay``` 
 - Dòng 74: ```username``` --- Tài khoản VCB của bạn
 - Dòng 75: ```password``` --- Mật khẩu tài khoản VCB của bạn
-- Dòng 76: ```browserId``` --- Lấy tại đường dẫn: https://chatgpt.ongbantat.store/ là chuỗi ký dự có dạng giống ```1d49d4ae6e67ed25ef48d9f2accd15ea```
+- Dòng 76: ```browserId``` --- Lấy tại đường dẫn: https://services.ongbantat.store/ là chuỗi ký dự có dạng giống ```1d49d4ae6e67ed25ef48d9f2accd15ea```
 
 ### #5 chạy thử để kiểm tra cấu hình đã đúng chưa bằng cách gõ lệnh
 ```node index.js```
