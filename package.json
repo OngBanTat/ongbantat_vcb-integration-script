@@ -19,10 +19,14 @@
   },
   "homepage": "https://github.com/khangpqvn/vcb-integration-script#readme",
   "dependencies": {
+    "express": "^4.19.2",
     "moment": "^2.29.4",
     "nodemailer": "^6.9.3",
     "qs": "^6.11.2",
     "request": "^2.88.2",
-    "uuid": "^9.0.0"
+    "sqlite3": "^5.1.7",
+    "uuid": "^9.0.0",
+    "winston": "^3.13.1",
+    "winston-daily-rotate-file": "^5.0.0"
   }
 }
