@@ -24,19 +24,13 @@ fileTransport.on('rotate', function (oldFilename, newFilename) {
 
 // Setup winston logger
 const logger = winston.createLogger({
-    format: winston.format.combine(
-        winston.format.timestamp(),
-        winston.format.json()
-    ),
-    transports: [
-        fileTransport,
-        consoleTransport
-    ]
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+    transports: [fileTransport, consoleTransport]
 });
 
 
 // Connect to SQLite database
-let db = new sqlite3.Database('./db/queue.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
+let db = new sqlite3.Database('./queue.sqlite', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
     if (err) {
         logger.error(err.message);
     }
@@ -46,10 +40,9 @@ let db = new sqlite3.Database('./db/queue.db', sqlite3.OPEN_READWRITE | sqlite3.
 
 let isProcessingQueue = false;
 setInterval(async () => {
-    if (isProcessingQueue) return;
+    if (isProcessingQueue) return logger.info("Still processing queue...");
     isProcessingQueue = true;
-    console.log("vao day")
-
+    await processingQueue();
     isProcessingQueue = false;
 }, 15000);
 
@@ -82,12 +75,7 @@ app.post('/api/savequeue', (req, res) => {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     data.forEach(item => {
-        db.run(sql, [
-            item.tranDate, item.TransactionDate, item.Reference, item.CD,
-            item.Amount, item.Description, item.PCTime, item.DorCCode,
-            item.EffDate, item.PostingDate, item.PostingTime, item.Remark,
-            item.SeqNo, item.TnxCode, item.Teller
-        ], err => {
+        db.run(sql, [item.tranDate, item.TransactionDate, item.Reference, item.CD, item.Amount, item.Description, item.PCTime, item.DorCCode, item.EffDate, item.PostingDate, item.PostingTime, item.Remark, item.SeqNo, item.TnxCode, item.Teller], err => {
             if (err) {
                 logger.error(err.message);
             }
@@ -97,6 +85,87 @@ app.post('/api/savequeue', (req, res) => {
     res.status(200).send('Data received and saved.');
 });
 
+async function queryDb(sqlSelect) {
+    return new Promise((resolve, reject) => {
+        db.all(sqlSelect, [], (err, rows) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(rows)
+        });
+    });
+}
+
+async function deleteTransById(id) {
+
+    return new Promise((resolve, reject) => {
+        db.run('DELETE FROM transactions WHERE id = ?', id, (err) => {
+            if (err) {
+                return reject(err);
+            }
+            return resolve(true)
+        });
+    });
+
+
+}
+
+let CONFIG_CODE = {
+    //TODO: Add config for regex extract code from bank transaction description
+    "CTMB \\d+": {
+        token: "",
+        approveApi: ""
+    }
+}
+
+function extractCode(Remark) {
+    for (let key in CONFIG_CODE) {
+        let codeConfig = CONFIG_CODE[key];
+        let regex = new RegExp(key);
+        let match = Remark.match(regex)
+        if (match) {
+            return {code: match[0], codeConfig};
+        }
+    }
+    return {null, null};
+}
+
+async function callApiAprove(code, money, codeConfig) {
+    //TODO: Implement code call api for approve bank transaction by code, money, and code config
+    return {isOk: true, message: "Duyet nap tien thanh cong"} //isOk = true => Remove transaction and don't retry | false : retry later
+}
+
+async function processTransPlusMoney(transaction) {
+    console.log({transaction})
+    let {code, codeConfig} = extractCode(transaction.Remark);
+    if (!code) return {isOk: true, message: "Khong co thong tin ma nap tien"}
+    let money = +transaction.Amount.replace(/,/gi, "").replace(/\./gi, "");
+    let {isOk, message} = await callApiAprove(code, money, codeConfig);
+    return {isOk, message}
+}
+
+async function processingQueue() {
+    try {
+        let data = await queryDb("SELECT * FROM transactions");
+        for (const t of data) {
+            if (t.CD !== "+") {
+                //Xóa những giao dich khong phai giao dich + tien
+                let isDeleted = await deleteTransById(t.id);
+                if (isDeleted) logger.info(`Bo qua giao dich khac giao dich cong tien: data=[${JSON.stringify(t)}]`);
+                continue;
+            }
+            let {isOk, message} = await processTransPlusMoney(t);
+            if (isOk) {
+                await deleteTransById(t.id);
+                logger.info(`Xử lý thành công giao dich: data=[${JSON.stringify(t)}] => message=[${message}]`);
+            } else {
+                logger.info(`Xử lý KHÔNG thành công giao dich: data=[${JSON.stringify(t)}] => message=[${message}]`);
+            }
+        }
+    } catch (e) {
+        logger.error(e.stack || e);
+    }
+}
 
 // Server start
 app.listen(process.env.PORT || 3000, () => logger.info('Server is running on port 3000...'));
