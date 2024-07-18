@@ -14,7 +14,7 @@ expo.common = {
 
 expo.callback = {
     //Method: POST => Nhớ hứng api bằng method post
-    url: '', //Đường dẫn API nhận lịch sử ngân hàng vcb
+    url: process.env.API_URL || 'http://localhost:9630/api/savequeue', //Đường dẫn API nhận lịch sử ngân hàng vcb
     headers: {}, //Header để gọi API
     query: {}, //Query params cần thiết
     timeout: 5000, //Thời gian chờ tối đa

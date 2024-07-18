@@ -7,7 +7,17 @@
       "exec_mode": "cluster",
       "watch": false,
       "env": {
-
+        "API_URL": "http://localhost:9630/api/savequeue"
+      }
+    },
+    {
+      "name": "VCB_CRAWLING_QUEUE",
+      "script": "./server.js",
+      "instances": 1,
+      "exec_mode": "cluster",
+      "watch": false,
+      "env": {
+        "PORT": 9630
       }
     }
   ]

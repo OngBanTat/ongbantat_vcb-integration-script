@@ -1,3 +1,18 @@
+let CONFIG_CODE = process.env.CONFIG_CODE || {
+    //TODO: Add config for regex extract code from bank transaction description
+    "CTMB \\d+": {
+        token: "",
+        approveApi: ""
+    }
+}
+
+
+async function callApiAprove(code, money, codeConfig) {
+    //TODO: Implement code call api for approve bank transaction by code, money, and code config
+    return {isOk: true, message: "Duyet nap tien thanh cong"} //isOk = true => Remove transaction and don't retry | false : retry later
+}
+
+
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const winston = require('winston');
@@ -110,12 +125,14 @@ async function deleteTransById(id) {
 
 }
 
-let CONFIG_CODE = {
-    //TODO: Add config for regex extract code from bank transaction description
-    "CTMB \\d+": {
-        token: "",
-        approveApi: ""
-    }
+
+async function processTransPlusMoney(transaction) {
+    console.log({transaction})
+    let {code, codeConfig} = extractCode(transaction.Remark);
+    if (!code) return {isOk: true, message: "Khong co thong tin ma nap tien"}
+    let money = +transaction.Amount.replace(/,/gi, "").replace(/\./gi, "");
+    let {isOk, message} = await callApiAprove(code, money, codeConfig);
+    return {isOk, message}
 }
 
 function extractCode(Remark) {
@@ -128,20 +145,6 @@ function extractCode(Remark) {
         }
     }
     return {code: null, codeConfig: null};
-}
-
-async function callApiAprove(code, money, codeConfig) {
-    //TODO: Implement code call api for approve bank transaction by code, money, and code config
-    return {isOk: true, message: "Duyet nap tien thanh cong"} //isOk = true => Remove transaction and don't retry | false : retry later
-}
-
-async function processTransPlusMoney(transaction) {
-    console.log({transaction})
-    let {code, codeConfig} = extractCode(transaction.Remark);
-    if (!code) return {isOk: true, message: "Khong co thong tin ma nap tien"}
-    let money = +transaction.Amount.replace(/,/gi, "").replace(/\./gi, "");
-    let {isOk, message} = await callApiAprove(code, money, codeConfig);
-    return {isOk, message}
 }
 
 async function processingQueue() {
@@ -167,5 +170,6 @@ async function processingQueue() {
     }
 }
 
+let port = process.env.PORT || 9630
 // Server start
-app.listen(process.env.PORT || 3000, () => logger.info('Server is running on port 3000...'));
+app.listen(port, () => logger.info('Server is running on port ' + port));
