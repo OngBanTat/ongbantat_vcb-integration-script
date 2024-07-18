@@ -9,7 +9,10 @@ let CONFIG_CODE = process.env.CONFIG_CODE || {
 
 async function callApiAprove(code, money, codeConfig) {
     //TODO: Implement code call api for approve bank transaction by code, money, and code config
-    return {isOk: true, message: "Duyet nap tien thanh cong"} //isOk = true => Remove transaction and don't retry | false : retry later
+    return {
+        isOk: true,
+        message: `Duyet nap tien thanh cong cho ma nap [${code}] so tien [${money.toLocaleString()}] tren api [${codeConfig.approveApi}]`
+    } //isOk = true => Remove transaction and don't retry | false : retry later
 }
 
 
@@ -39,7 +42,7 @@ fileTransport.on('rotate', function (oldFilename, newFilename) {
 
 // Setup winston logger
 const logger = winston.createLogger({
-    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+    format: winston.format.combine(winston.format.timestamp(), winston.format.prettyPrint()),
     transports: [fileTransport, consoleTransport]
 });
 
