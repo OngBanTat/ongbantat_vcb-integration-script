@@ -130,3 +130,8 @@ dist
 /persisQueue.txt
 /position.txt
 /package-lock.json
+/queue.sqlite
+/.idea/.gitignore
+/.idea/modules.xml
+/.idea/vcb_integrate.iml
+/.idea/vcs.xml
