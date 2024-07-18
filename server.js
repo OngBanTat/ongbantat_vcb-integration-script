@@ -12,6 +12,7 @@ async function callApiApprove(code, money, codeConfig) {
     let data;
     try {
         data = await approve(codeConfig.approveApi, code, codeConfig.token, money);
+        data = JSON.parse(data);
         switch (data.code) {
             case 200:
                 return {
