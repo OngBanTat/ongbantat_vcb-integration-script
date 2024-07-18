@@ -127,7 +127,7 @@ function extractCode(Remark) {
             return {code: match[0], codeConfig};
         }
     }
-    return {null, null};
+    return {code: null, codeConfig: null};
 }
 
 async function callApiAprove(code, money, codeConfig) {
