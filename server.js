@@ -30,7 +30,7 @@ async function callApiApprove(code, money, codeConfig) {
 }
 
 async function approve(domain, code, token, money) {
-    var options = {
+    const options = {
         'method': 'POST',
         'url': domain + '/api/index.php',
         'headers': {
