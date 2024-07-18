@@ -9,18 +9,60 @@ let CONFIG_CODE = process.env.CONFIG_CODE || {
 
 async function callApiAprove(code, money, codeConfig) {
     //TODO: Implement code call api for approve bank transaction by code, money, and code config
-    return {
-        isOk: true,
-        message: `Duyet nap tien thanh cong cho ma nap [${code}] so tien [${money.toLocaleString()}] tren api [${codeConfig.approveApi}]`
-    } //isOk = true => Remove transaction and don't retry | false : retry later
+    let data = await approve(codeConfig.approveApi, code, codeConfig.token, money);
+    if (data.code === 200)
+        return {
+            isOk: true,
+            message: `Duyet nap tien thanh cong cho ma nap [${code}] so tien [${money.toLocaleString()}] tren api [${codeConfig.approveApi}]`
+        } //isOk = true => Remove transaction and don't retry | false : retry later
+    if (data.code === 400) {
+        return {isOk: true, message: data.msg}
+    }
+    return {isOk: false, message: data || {"msg": "Loi khong xac dinh"}.msg}
 }
 
+async function approve(domain, code, token, money) {
+    var options = {
+        'method': 'POST',
+        'url': domain + '/api/index.php',
+        'headers': {
+            'Accept': 'application/json, text/plain, */*',
+            'Accept-Language': 'en-US,en;q=0.9,vi;q=0.8',
+            'Connection': 'keep-alive',
+            'Content-Type': 'application/json',
+            'Origin': domain,
+            'Referer': domain + '/client/admin/payment-pay',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36 Edg/126.0.0.0'
+        },
+        body: JSON.stringify({
+            "token": token,
+            "action": "verifyPay",
+            "data": {
+                "status": 1,
+                "code": code,
+                "real_money": money + "",
+                "reason": "He thong duyet nap tien tu dong"
+            },
+            "controller": "admin"
+        })
+
+    };
+    return new Promise((resolve, reject) => {
+        request(options, function (error, response) {
+            if (error) return reject(error);
+            return resolve(response.body);
+        });
+    })
+
+
+}
 
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
 const winston = require('winston');
 const request = require('request');
 require('winston-daily-rotate-file');
+const {reject} = require("nodemailer/.ncurc");
 const app = express();
 app.use(express.json());
 
