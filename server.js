@@ -7,17 +7,24 @@ let CONFIG_CODE = process.env.CONFIG_CODE || {
 }
 
 
-async function callApiAprove(code, money, codeConfig) {
+async function callApiApprove(code, money, codeConfig) {
     //TODO: Implement code call api for approve bank transaction by code, money, and code config
-    let data = await approve(codeConfig.approveApi, code, codeConfig.token, money);
-    if (data.code === 200)
-        return {
-            isOk: true,
-            message: `Duyet nap tien thanh cong cho ma nap [${code}] so tien [${money.toLocaleString()}] tren api [${codeConfig.approveApi}]`
+    let data;
+    try {
+        data = await approve(codeConfig.approveApi, code, codeConfig.token, money);
+        switch (data.code) {
+            case 200:
+                return {
+                    isOk: true,
+                    message: `Duyet nap tien thanh cong cho ma nap [${code}] so tien [${money.toLocaleString()}] tren api [${codeConfig.approveApi}]`
+                }
+            case 400:
+                return {isOk: true, message: data.msg}
         } //isOk = true => Remove transaction and don't retry | false : retry later
-    if (data.code === 400) {
-        return {isOk: true, message: data.msg}
+    } catch (e) {
+        logger.error(e.stack)
     }
+
     return {isOk: false, message: data || {"msg": "Loi khong xac dinh"}.msg}
 }
 
@@ -176,7 +183,7 @@ async function processTransPlusMoney(transaction) {
     let {code, codeConfig} = extractCode(transaction.Remark);
     if (!code) return {isOk: true, message: "Khong co thong tin ma nap tien"}
     let money = +transaction.Amount.replace(/,/gi, "").replace(/\./gi, "");
-    let {isOk, message} = await callApiAprove(code, money, codeConfig);
+    let {isOk, message} = await callApiApprove(code, money, codeConfig);
     return {isOk, message}
 }
 
