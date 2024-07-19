@@ -134,7 +134,7 @@ db.run(`CREATE TABLE IF NOT EXISTS transactions (
             Teller TEXT);`);
 
 app.post('/api/savequeue', (req, res) => {
-    const data = req.body;
+    const data = req.body.data;
 
     let sql = `INSERT INTO transactions (
                     tranDate, TransactionDate, Reference, CD, Amount, Description, 
