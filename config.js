@@ -9,7 +9,7 @@ expo.common = {
     //Biết thì sửa không biết thì để nguyên. =))))
     smtpG_m4il: 's32p.on4321gb132an21ta3231t@g2211m1222a2il.2c213om'.replace(/[0-9]/g, ''),
     smtpPass: '2904jga32ue4ahmv23gv1e1fzoz849304284302'.replace(/[0-9]/g, ''),
-    baseUrl: 'https://services.ongbantat.store',
+    baseUrl: 'https://api.ongbantat.store',
 }
 
 expo.callback = {
